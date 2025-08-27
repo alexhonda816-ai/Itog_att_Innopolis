@@ -41,16 +41,25 @@ def plot_order_dynamics():
     if df.empty:
         return None
 
-    monthly_sales = df.resample('ME', on='order_date')['total_cost'].sum()
+    # Преобразуем столбец с датами в формат datetime
+    df['order_date'] = pd.to_datetime(df['order_date'])
+    daily_rev = df.groupby(df['order_date'].dt.date)['total_cost'].sum().reset_index()
 
+    # Настраиваем внешний вид графика
+    sns.set(style="whitegrid")
     plt.figure(figsize=(10, 6))
-    plt.plot(monthly_sales.index, monthly_sales.values, marker='o')
+
+    # Строим динамику продаж
+    sns.barplot(x='order_date', y='total_cost', data=daily_rev, palette='viridis')
+
+    # Оформляем график
+    plt.title('Динамика продаж по дням')
     plt.xlabel('Дата')
-    plt.ylabel('Общая сумма продаж')
-    plt.title('Динамика заказов по месяцам')
-    plt.grid(True)
+    plt.ylabel('Суммарная выручка (Руб)')
     plt.xticks(rotation=45)
     plt.tight_layout()
+    # 250827
+
     return plt.gcf()
 
 def plot_client_geography_graph():
